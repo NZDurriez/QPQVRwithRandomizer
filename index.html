@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QP & QVR Generator</title>
+<style>
+html, body { overflow-y: scroll; scrollbar-width: none; margin:0; padding:0; }
+::-webkit-scrollbar { display:none; }
+body { scrollbar-gutter: stable; background: #1e1e1e; color:white; font-family:Arial, sans-serif; }
+.container { max-width:400px; margin:30px auto; padding:20px; background:#333; box-shadow:0 0 10px rgba(0,0,0,0.5); border-radius:10px; }
+.title { text-align:center; font-size:1.5em; font-weight:bold; margin-bottom:20px; }
+.toggle-buttons { display:flex; justify-content:center; margin-bottom:20px; }
+.toggle-buttons button { background:#007bff; color:white; border:none; cursor:pointer; padding:10px 15px; border-radius:5px; margin:0 5px; }
+.toggle-buttons button:hover { background:#0056b3; }
+.generator-section { display:block; }
+.form-group { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+label { width:40%; }
+input, select { width:55%; padding:8px; border:1px solid #aaa; background:#555; color:white; border-radius:5px; }
+button.generate { display:block; width:100%; background:#007bff; color:white; border:none; cursor:pointer; padding:10px; border-radius:5px; margin-top:10px; }
+button.generate:hover { background:#0056b3; }
+.toggle-instructions { background:#007bff; color:white; border:none; cursor:pointer; padding:8px 12px; border-radius:5px; margin:10px 0; font-size:0.9rem; width:100%; text-align:center; }
+.toggle-instructions:hover { background:#0056b3; }
+.instructions-container { display:none; background-color:#222; border:1px solid #f4d03f; border-radius:5px; padding:10px; margin-bottom:10px; color:#fff; }
+.instructions { margin:0; padding-left:20px; }
+.instructions li { margin-bottom:5px; }
+.output-container { margin-top:10px; }
+.output { padding:10px; background:#444; border-radius:5px; font-family:monospace; word-break:break-all; cursor:pointer; min-height:50px; }
+#flagChoice { display:none; margin-bottom:10px; text-align:center; }
+.flag-btn { display:inline-block !important; width:auto !important; padding:5px 10px; margin:0 5px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2 class="title">QP & QVR Generator</h2>
+
+<div class="toggle-buttons">
+  <button onclick="showQVR()">Vehicle | QVR Generator</button>
+  <button onclick="showQP()">Character | QP Generator</button>
+</div>
+
+<!-- QVR Section -->
+<div id="qvrSection" class="generator-section">
+  <h3>QVR Creator</h3>
+  <div class="form-group">
+    <label>Vehicle Plate:</label>
+    <input type="text" id="plate" maxlength="6" placeholder="ABC123" />
+  </div>
+  <div class="form-group">
+    <label>Registered Owner:</label>
+    <input type="text" id="owner" placeholder="Eg. John Doe" />
+  </div>
+  <div class="form-group">
+    <label>Warrant of Fitness:</label>
+    <select id="woF"><option>Valid</option><option>Invalid</option></select>
+  </div>
+  <div class="form-group">
+    <label>Rego:</label>
+    <select id="rego"><option>Valid</option><option>Invalid</option></select>
+  </div>
+  <div class="form-group">
+    <label>Vehicle Make:</label>
+    <input type="text" id="make" placeholder="Eg. Nissan" />
+  </div>
+  <div class="form-group">
+    <label>Vehicle Model:</label>
+    <input type="text" id="model" placeholder="Eg. Skyline" />
+  </div>
+  <div class="form-group">
+    <label>Year:</label>
+    <input type="text" id="year" maxlength="4" placeholder="2018" />
+  </div>
+  <div class="form-group">
+    <label>Colour:</label>
+    <input type="text" id="color" placeholder="Eg. Red" />
+  </div>
+  <div class="form-group">
+    <label>Flags:</label>
+    <input type="text" id="flags" placeholder="Eg. Owner has active WTA" />
+  </div>
+  <button class="generate" id="generateQVR">Generate QVR</button>
+  <button class="toggle-instructions" id="toggleInstructionsQVR">Show Instructions</button>
+  <div class="instructions-container" id="instructionsQVR">
+    <ol class="instructions">
+      <li>Hit T in chat,</li>
+      <li>Type /civ,</li>
+      <li>Paste the generated QVR into the vehicle menu,</li>
+      <li>Save and activate.</li>
+    </ol>
+  </div>
+  <div class="output-container">
+    <p id="outputQVR" class="output"></p>
+  </div>
+</div>
+
+<!-- QP Section -->
+<div id="qpSection" class="generator-section" style="display:none;">
+<h3>QP Generator</h3>
+<button class="generate" id="randomQP" style="margin-bottom:15px;">Randomize QP</button>
+<div id="flagChoice">
+  <span>Auto-generate Flags?</span>
+  <button id="flagYes" class="generate flag-btn">Yes</button>
+  <button id="flagNo" class="generate flag-btn">No</button>
+</div>
+
+<div class="form-group">
+  <label>First Name:</label>
+  <input type="text" id="firstName" placeholder="John" />
+</div>
+<div class="form-group">
+  <label>Last Name:</label>
+  <input type="text" id="lastName" placeholder="Doe" />
+</div>
+<div class="form-group">
+  <label>Date of Birth:</label>
+  <input type="text" id="age" placeholder="01 Jan 1994" />
+</div>
+<div class="form-group">
+  <label>Address:</label>
+  <input type="text" id="address" placeholder="845 Grove Street" />
+</div>
+<div class="form-group">
+  <label>Occupation:</label>
+  <input type="text" id="occupation" placeholder="Software Engineer" />
+</div>
+<div class="form-group checkbox-group">
+  <label>License(s):</label>
+  <input type="radio" name="license" value="1L" /> 1L
+  <input type="radio" name="license" value="1R" /> 1R
+  <input type="radio" name="license" value="1F" /> 1F
+</div>
+<div class="form-group checkbox-group">
+  <label>Other License(s):</label>
+  <input type="checkbox" name="otherLicenses" value="2" /> 2
+  <input type="checkbox" name="otherLicenses" value="3" /> 3
+  <input type="checkbox" name="otherLicenses" value="4" /> 4
+  <input type="checkbox" name="otherLicenses" value="5" /> 5
+  <input type="checkbox" name="otherLicenses" value="6" /> 6
+</div>
+<div class="form-group">
+  <label>Flags:</label>
+  <input type="text" id="qpFlags" placeholder="Known to be carrying weapons etc." />
+</div>
+<button class="generate" id="generateQP">Generate QP</button>
+<button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
+<div class="instructions-container" id="instructionsQP">
+  <ol class="instructions">
+    <li>Hit T in chat,</li>
+    <li>Type /civ,</li>
+    <li>Paste the generated QP into the character menu,</li>
+    <li>Save and activate.</li>
+  </ol>
+</div>
+<div class="output-container">
+  <p id="outputQP" class="output"></p>
+</div>
+</div>
+</div>
+
+<script>
+window.showQVR=()=>{document.getElementById("qvrSection").style.display="block";document.getElementById("qpSection").style.display="none";};
+window.showQP=()=>{document.getElementById("qvrSection").style.display="none";document.getElementById("qpSection").style.display="block";};
+
+const toggleInstr=(btnId,containerId)=>{document.getElementById(btnId).addEventListener("click",function(){const c=document.getElementById(containerId);if(c.style.display==="block"){c.style.display="";this.textContent="Show Instructions";}else{c.style.display="block";this.textContent="Hide Instructions";}});}
+toggleInstr("toggleInstructionsQVR","instructionsQVR");
+toggleInstr("toggleInstructionsQP","instructionsQP");
+
+document.getElementById("plate").addEventListener("input",function(){this.value=this.value.toUpperCase();});
+
+document.getElementById("generateQVR").addEventListener("click",()=>{
+  const plate=document.getElementById("plate").value||"Nil";
+  const owner=document.getElementById("owner").value||"Nil";
+  const woF=document.getElementById("woF").value||"Nil";
+  const rego=document.getElementById("rego").value||"Nil";
+  const make=document.getElementById("make").value||"Nil";
+  const model=document.getElementById("model").value||"Nil";
+  const year=document.getElementById("year").value||"Nil";
+  const color=document.getElementById("color").value||"Nil";
+  const flags=document.getElementById("flags").value||"Nil";
+  document.getElementById("outputQVR").innerText=`~y~Plate:~b~${plate} ~y~Make:~b~${make} ~y~Model:~b~${model} ~y~Colour:~b~${color} ~y~Year:~b~${year} ~y~Registered Owner:~b~${owner} ~y~WOF:~b~${woF} ~y~REG:~b~${rego} ~y~Flags:~b~${flags}`;
+});
+
+document.getElementById("generateQP").addEventListener("click",()=>{
+  const fn=document.getElementById("firstName").value||"Nil";
+  const ln=document.getElementById("lastName").value||"Nil";
+  const age=document.getElementById("age").value||"Nil";
+  const adr=document.getElementById("address").value||"Nil";
+  const occ=document.getElementById("occupation").value||"Nil";
+  let lic="Nil";document.querySelectorAll('input[name="license"]:checked').forEach(c=>lic=c.value);
+  const other=Array.from(document.querySelectorAll('input[name="otherLicenses"]:checked')).map(c=>c.value).join(", ")||"Nil";
+  const flags=document.getElementById("qpFlags").value||"Nil";
+  document.getElementById("outputQP").innerText=`~y~First Name:~b~${fn} ~y~Last Name:~b~${ln} ~y~Age:~b~${age} ~y~Address:~b~${adr} ~y~Occupation:~b~${occ} ~y~Licenses:~b~${[lic,other].filter(v=>v!=="Nil").join(", ")||"Nil"} ~y~Flags:~b~${flags}`;
+});
+
+["outputQVR","outputQP"].forEach(id=>{document.getElementById(id).addEventListener("click",function(){const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r);});});
+
+const maleFirstNames = [
+  // Original
+  "Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander",
+  "Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo",
+  "Jack","Owen","Theodore","Aiden","Samuel",
+
+  // Māori / NZ additions (male + neutral)
+  "Wiremu","Tama","Manaia","Hemi","Rangi","Nikau","Tane","Rawiri","Hoani","Kauri",
+  "Ari","Anaru","Pita","Kahu","Matiu","Niko","Tai","Rewi","Hori","Rau","Wire",
+  "Tawhiri","Ihaia","Tipene","Taimana","Mako","Aroha","Tui","Whetu","Kahu","TeManu",
+  "Rongo","Tamaora","TeAriki","Koroki","Mikaere","Arona","Kereama","TeRangi","Hone","Pene",
+  "Tawera","Eru","Tuterangi","Tioriori","Kawhena","Hera","Kahurangi","Whiti","Turanga",
+  "Takuta","Pounamu","Rere","Maru","Rata","Ngaio","Makoha","Tamaroa","Tohu","Wirekura",
+
+  // Common NZ European names (extra)
+  "Thomas","Charlie","George","Harrison","Finn","Cooper","Lachlan","Blake","Hunter",
+  "Isaac","Joshua","Callum","Connor","Jordan","Cameron","Tyler","Zachary","Dylan",
+  "Caleb","Elliot","Nathan","Ryan","Oscar","Archie","Patrick","Jasper","Miles","Spencer",
+  "Logan","Cole","Max","Austin","Dominic","Brayden","Shane","Corey","Mitchell","Aaron",
+  "Travis","Ewan","Flynn","Reid","Declan","Ashton","Hayden","Kane","Brandon","Marcus",
+  "Jayden","Troy","Scott","Riley","Samson","Leo","Eli","Christian","Damian","Xavier"
+];
+
+const lastNames = [
+  // Original
+  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+  "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
+  "Lee","Perez","Thompson","White","Harris",
+
+  // Common NZ European surnames
+  "Andrews","Clark","King","Scott","Edwards","Walker","Murray","McKenzie","McDonald","Graham",
+  "Stewart","Campbell","Fraser","Reid","Alexander","Ross","Douglas","Marshall","Kerr","McLean",
+  "Fletcher","Boyd","Munro","Sinclair","Wallace","Forbes","Henderson","Allan","MacDonald","Cameron",
+
+  // Māori surnames
+  "Ngata","Rangihau","TeRangi","Waititi","Tamihana","Wikaira","Henare","Tipene","Waaka","TeHeuheu",
+  "Katene","Tau","Wharekawa","Ngawhika","Ranginui","Reihana","Parata","Turei","TeAho","Kawana",
+  "Perenara","Ropiha","Haami","Whaitiri","TeKanawa","Whiu","TePaea","Moana","Ngawaka","Whanau",
+  "Wanoa","Hikuroa","Hotere","TeWhiti","Tirikatene","Taiaroa","TePuni","Hekenui","Pomare","Apirana",
+  "Aranui","Wharekura","Paora","TeAo","Ngawhare","Tipiwai","Pikiao","Hona","Waiariki","Ngakuru"
+];
+
+const nzFlags=["Warrant to Arrest: Failure to appear in court","Warrant to Arrest: Breach of bail conditions","Warrant to Arrest: Breach of domestic violence order","Warrant to Arrest: Possession of illegal drugs","Warrant to Arrest: Theft","Warrant to Arrest: Assault","Warrant to Arrest: Driving offenses","Warrant to Arrest: Outstanding fines"];
+
+document.getElementById("randomQP").addEventListener("click",()=>{
+  document.getElementById("firstName").value=maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
+  document.getElementById("lastName").value=lastNames[Math.floor(Math.random()*lastNames.length)];
+  document.getElementById("occupation").value="Civilian";
+  document.getElementById("qpFlags").value="";
+  document.getElementById("flagChoice").style.display="block";
+});
+
+document.getElementById("flagYes").addEventListener("click",()=>{
+  document.getElementById("qpFlags").value=nzFlags[Math.floor(Math.random()*nzFlags.length)];
+  document.getElementById("flagChoice").style.display="none";
+});
+document.getElementById("flagNo").addEventListener("click",()=>{
+  document.getElementById("qpFlags").value="";
+  document.getElementById("flagChoice").style.display="none";
+});
+</script>
+</body>
+</html>
