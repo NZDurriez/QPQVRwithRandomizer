@@ -295,8 +295,45 @@ document.getElementById("generateQVR").addEventListener("click",()=>{
 });
 
 // Male/last names
-const maleFirstNames = ["Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander","Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo","Jack","Owen","Theodore","Aiden","Samuel"];
-const lastNames = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez","Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson"];
+"Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander",
+  "Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo",
+  "Jack","Owen","Theodore","Aiden","Samuel",
+
+  // Māori / NZ additions (male + neutral)
+  "Wiremu","Tama","Manaia","Hemi","Rangi","Nikau","Tane","Rawiri","Hoani","Kauri",
+  "Ari","Anaru","Pita","Kahu","Matiu","Niko","Tai","Rewi","Hori","Rau","Wire",
+  "Tawhiri","Ihaia","Tipene","Taimana","Mako","Aroha","Tui","Whetu","Kahu","TeManu",
+  "Rongo","Tamaora","TeAriki","Koroki","Mikaere","Arona","Kereama","TeRangi","Hone","Pene",
+  "Tawera","Eru","Tuterangi","Tioriori","Kawhena","Hera","Kahurangi","Whiti","Turanga",
+  "Takuta","Pounamu","Rere","Maru","Rata","Ngaio","Makoha","Tamaroa","Tohu","Wirekura",
+
+  // Common NZ European names (extra)
+  "Thomas","Charlie","George","Harrison","Finn","Cooper","Lachlan","Blake","Hunter",
+  "Isaac","Joshua","Callum","Connor","Jordan","Cameron","Tyler","Zachary","Dylan",
+  "Caleb","Elliot","Nathan","Ryan","Oscar","Archie","Patrick","Jasper","Miles","Spencer",
+  "Logan","Cole","Max","Austin","Dominic","Brayden","Shane","Corey","Mitchell","Aaron",
+  "Travis","Ewan","Flynn","Reid","Declan","Ashton","Hayden","Kane","Brandon","Marcus",
+  "Jayden","Troy","Scott","Riley","Samson","Leo","Eli","Christian","Damian","Xavier"
+];
+
+const lastNames = [
+  // Original
+  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+  "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
+  "Lee","Perez","Thompson","White","Harris",
+
+  // Common NZ European surnames
+  "Andrews","Clark","King","Scott","Edwards","Walker","Murray","McKenzie","McDonald","Graham",
+  "Stewart","Campbell","Fraser","Reid","Alexander","Ross","Douglas","Marshall","Kerr","McLean",
+  "Fletcher","Boyd","Munro","Sinclair","Wallace","Forbes","Henderson","Allan","MacDonald","Cameron",
+
+  // Māori surnames
+  "Ngata","Rangihau","TeRangi","Waititi","Tamihana","Wikaira","Henare","Tipene","Waaka","TeHeuheu",
+  "Katene","Tau","Wharekawa","Ngawhika","Ranginui","Reihana","Parata","Turei","TeAho","Kawana",
+  "Perenara","Ropiha","Haami","Whaitiri","TeKanawa","Whiu","TePaea","Moana","Ngawaka","Whanau",
+  "Wanoa","Hikuroa","Hotere","TeWhiti","Tirikatene","Taiaroa","TePuni","Hekenui","Pomare","Apirana",
+  "Aranui","Wharekura","Paora","TeAo","Ngawhare","Tipiwai","Pikiao","Hona","Waiariki","Ngakuru"
+];
 
 // NZ Flags
 const nzFlags = [
@@ -417,3 +454,4 @@ document.getElementById("generateQP").addEventListener("click",()=>{
 </script>
 </body>
 </html>
+
