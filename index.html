@@ -8,7 +8,7 @@
 html, body { overflow-y: scroll; scrollbar-width: none; margin:0; padding:0; }
 ::-webkit-scrollbar { display:none; }
 body { scrollbar-gutter: stable; background: #1e1e1e; color:white; font-family:Arial, sans-serif; }
-.container { max-width:400px; margin:30px auto; padding:20px; background:#333; box-shadow:0 0 10px rgba(0,0,0,0.5); border-radius:10px; }
+.container { max-width:800px; margin:30px auto; padding:20px; background:#333; box-shadow:0 0 10px rgba(0,0,0,0.5); border-radius:10px; }
 .title { text-align:center; font-size:1.5em; font-weight:bold; margin-bottom:20px; }
 .toggle-buttons { display:flex; justify-content:center; margin-bottom:20px; }
 .toggle-buttons button { background:#007bff; color:white; border:none; cursor:pointer; padding:10px 15px; border-radius:5px; margin:0 5px; }
@@ -26,8 +26,98 @@ button.generate:hover { background:#0056b3; }
 .instructions li { margin-bottom:5px; }
 .output-container { margin-top:10px; }
 .output { padding:10px; background:#444; border-radius:5px; font-family:monospace; word-break:break-all; cursor:pointer; min-height:50px; }
-#flagChoice { display:none; margin-bottom:10px; text-align:center; }
-.flag-btn { display:inline-block !important; width:auto !important; padding:5px 10px; margin:0 5px; }
+
+/* Dual-list grid */
+.dual-list-container {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* left list, buttons, right list */
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+.dual-list-container select {
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  background:#555;
+  color:white;
+  border-radius:5px;
+  border:1px solid #aaa;
+}
+
+/* Center license buttons */
+.radio-buttons, .license-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* Buttons inside license sections */
+.license-buttons button, .radio-buttons button {
+  margin:0;
+  padding:5px 10px;
+  border-radius:5px;
+  border:none;
+  background:#FFD966;
+  color:#000;
+  cursor:pointer;
+  position:left;
+}
+.license-buttons button.active, .radio-buttons button.active {
+  background:#007bff;
+}
+
+/* Tooltip styles - dark gray background with white text */
+.other-license-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: #333;        /* Dark gray background */
+  color: #fff;             /* White text */
+  padding: 3px 6px;
+  border-radius: 4px;
+  top: -30px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  z-index: 10;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5); /* Optional: subtle shadow */
+}
+
+/* Main license button colors */
+#mainLicenseBtns button[data-value="1L"] {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+#mainLicenseBtns button[data-value="1R"] {
+  background-color: #FFD700; /* Yellow */
+  color: black;
+}
+#mainLicenseBtns button[data-value="1F"] {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+/* Keep hover effect consistent */
+#mainLicenseBtns button:hover {
+  opacity: 0.8;
+}
+
+/* Main license buttons */
+.radio-buttons button.active {
+  background-color: #007bff; /* existing color */
+  color: white;
+  outline: 3px solid #fff; /* white outline */
+  outline-offset: 2px;      /* some space between button and outline */
+}
+
+/* Other license buttons */
+.license-buttons button.active {
+  background-color: #FFD966; /* soft yellow */
+  color: black;
+  outline: 3px solid #fff;   /* white outline */
+  outline-offset: 2px;
+}
+
 </style>
 </head>
 <body>
@@ -97,11 +187,6 @@ button.generate:hover { background:#0056b3; }
 <div id="qpSection" class="generator-section" style="display:none;">
 <h3>QP Generator</h3>
 <button class="generate" id="randomQP" style="margin-bottom:15px;">Randomize QP</button>
-<div id="flagChoice">
-  <span>Auto-generate Flags?</span>
-  <button id="flagYes" class="generate flag-btn">Yes</button>
-  <button id="flagNo" class="generate flag-btn">No</button>
-</div>
 
 <div class="form-group">
   <label>First Name:</label>
@@ -123,24 +208,49 @@ button.generate:hover { background:#0056b3; }
   <label>Occupation:</label>
   <input type="text" id="occupation" placeholder="Software Engineer" />
 </div>
+
+<!-- Main License -->
 <div class="form-group checkbox-group">
   <label>License(s):</label>
-  <input type="radio" name="license" value="1L" /> 1L
-  <input type="radio" name="license" value="1R" /> 1R
-  <input type="radio" name="license" value="1F" /> 1F
+  <div class="radio-buttons" id="mainLicenseBtns">
+    <button type="button" data-value="1L">1L</button>
+    <button type="button" data-value="1R">1R</button>
+    <button type="button" data-value="1F">1F</button>
+  </div>
+  <input type="hidden" id="licenseValue" />
 </div>
+
+<!-- Other Licenses Buttons -->
 <div class="form-group checkbox-group">
   <label>Other License(s):</label>
-  <input type="checkbox" name="otherLicenses" value="2" /> 2
-  <input type="checkbox" name="otherLicenses" value="3" /> 3
-  <input type="checkbox" name="otherLicenses" value="4" /> 4
-  <input type="checkbox" name="otherLicenses" value="5" /> 5
-  <input type="checkbox" name="otherLicenses" value="6" /> 6
+  <div class="license-buttons" id="otherLicenseBtns">
+    <button type="button" data-value="2">2</button>
+    <button type="button" data-value="3">3</button>
+    <button type="button" data-value="4">4</button>
+    <button type="button" data-value="5">5</button>
+    <button type="button" data-value="6">6</button>
+  </div>
+  <input type="hidden" id="otherLicensesValue" />
 </div>
+
+<!-- Flags Section -->
 <div class="form-group">
-  <label>Flags:</label>
-  <input type="text" id="qpFlags" placeholder="Known to be carrying weapons etc." />
+  <label>Flags</label>
+  <input type="text" id="freeTextFlags" placeholder="Edit flags here..." />
 </div>
+
+<div class="dual-list-container">
+  <!-- Left = Selected / In Use -->
+  <select id="flagsSelected" multiple size="6"></select>
+  <div class="dual-list-buttons" style="display:flex;flex-direction:column;gap:5px;">
+    <button id="toAvailable">→</button>
+    <button id="toSelected">←</button>
+  </div>
+  <!-- Right = Available -->
+  <select id="flagsAvailable" multiple size="6"></select>
+</div>
+<input type="hidden" id="qpFlags" />
+
 <button class="generate" id="generateQP">Generate QP</button>
 <button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
 <div class="instructions-container" id="instructionsQP">
@@ -158,15 +268,19 @@ button.generate:hover { background:#0056b3; }
 </div>
 
 <script>
+// Section toggles
 window.showQVR=()=>{document.getElementById("qvrSection").style.display="block";document.getElementById("qpSection").style.display="none";};
 window.showQP=()=>{document.getElementById("qvrSection").style.display="none";document.getElementById("qpSection").style.display="block";};
 
-const toggleInstr=(btnId,containerId)=>{document.getElementById(btnId).addEventListener("click",function(){const c=document.getElementById(containerId);if(c.style.display==="block"){c.style.display="";this.textContent="Show Instructions";}else{c.style.display="block";this.textContent="Hide Instructions";}});}
+// Toggle instructions
+const toggleInstr=(btnId,containerId)=>{document.getElementById(btnId).addEventListener("click",function(){const c=document.getElementById(containerId);if(c.style.display==="block"){c.style.display="";this.textContent="Show Instructions";}else{c.style.display="block";this.textContent="Hide Instructions";}});};
 toggleInstr("toggleInstructionsQVR","instructionsQVR");
 toggleInstr("toggleInstructionsQP","instructionsQP");
 
+// Uppercase plate
 document.getElementById("plate").addEventListener("input",function(){this.value=this.value.toUpperCase();});
 
+// QVR generator
 document.getElementById("generateQVR").addEventListener("click",()=>{
   const plate=document.getElementById("plate").value||"Nil";
   const owner=document.getElementById("owner").value||"Nil";
@@ -180,79 +294,125 @@ document.getElementById("generateQVR").addEventListener("click",()=>{
   document.getElementById("outputQVR").innerText=`~y~Plate:~b~${plate} ~y~Make:~b~${make} ~y~Model:~b~${model} ~y~Colour:~b~${color} ~y~Year:~b~${year} ~y~Registered Owner:~b~${owner} ~y~WOF:~b~${woF} ~y~REG:~b~${rego} ~y~Flags:~b~${flags}`;
 });
 
-document.getElementById("generateQP").addEventListener("click",()=>{
-  const fn=document.getElementById("firstName").value||"Nil";
-  const ln=document.getElementById("lastName").value||"Nil";
-  const age=document.getElementById("age").value||"Nil";
-  const adr=document.getElementById("address").value||"Nil";
-  const occ=document.getElementById("occupation").value||"Nil";
-  let lic="Nil";document.querySelectorAll('input[name="license"]:checked').forEach(c=>lic=c.value);
-  const other=Array.from(document.querySelectorAll('input[name="otherLicenses"]:checked')).map(c=>c.value).join(", ")||"Nil";
-  const flags=document.getElementById("qpFlags").value||"Nil";
-  document.getElementById("outputQP").innerText=`~y~First Name:~b~${fn} ~y~Last Name:~b~${ln} ~y~Age:~b~${age} ~y~Address:~b~${adr} ~y~Occupation:~b~${occ} ~y~Licenses:~b~${[lic,other].filter(v=>v!=="Nil").join(", ")||"Nil"} ~y~Flags:~b~${flags}`;
+// Male/last names
+const maleFirstNames = ["Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander","Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo","Jack","Owen","Theodore","Aiden","Samuel"];
+const lastNames = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez","Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson"];
+
+// NZ Flags
+const nzFlags = [
+  "Warrant to Arrest: Failure to appear in court",
+  "Warrant to Arrest: Breach of bail conditions",
+  "Warrant to Arrest: Breach of domestic violence order",
+  "Warrant to Arrest: Theft",
+  "Warrant to Arrest: Assault",
+  "Warrant to Arrest: Outstanding fines",
+  "Warrant to Arrest: Burglary",
+  "Warrant to Arrest: Aggravated robbery",
+  "Warrant to Arrest: Shoplifting",
+  "Warrant to Arrest: Fraud",
+  "Warrant to Arrest: Unlawful possession of a firearm",
+  "Warrant to Arrest: Supplying illegal drugs",
+  "Warrant to Arrest: Breach of protection order",
+  "Warrant to Arrest: Wilful damage",
+  "Warrant to Arrest: Trespass",
+  "Warrant to Arrest: Threats to kill or injure",
+  "Warrant to Arrest: Hit and run",
+  "Warrant to Arrest: Breach of community work sentence",
+  "Warrant to Arrest: Breach of parole conditions"
+];
+
+// Dual-list logic
+let availableFlags = [...nzFlags];
+let selectedFlags = [];
+
+const flagsAvailableEl = document.getElementById("flagsAvailable");
+const flagsSelectedEl = document.getElementById("flagsSelected");
+const freeTextFlags = document.getElementById("freeTextFlags");
+
+function refreshLists() {
+  flagsAvailableEl.innerHTML="";
+  availableFlags.forEach(f=>{let opt=document.createElement("option");opt.value=f;opt.text=f;flagsAvailableEl.appendChild(opt);});
+  flagsSelectedEl.innerHTML="";
+  selectedFlags.forEach(f=>{let opt=document.createElement("option");opt.value=f;opt.text=f;flagsSelectedEl.appendChild(opt);});
+  document.getElementById("qpFlags").value=selectedFlags.join(", ");
+  freeTextFlags.value = selectedFlags.join(", ");
+}
+
+// Right arrow → = move from Available → Selected
+document.getElementById("toSelected").addEventListener("click",()=>{
+  const moving=[...flagsAvailableEl.selectedOptions].map(o=>o.value);
+  moving.forEach(f=>{selectedFlags.push(f); availableFlags=availableFlags.filter(a=>a!==f);});
+  refreshLists();
 });
 
-["outputQVR","outputQP"].forEach(id=>{document.getElementById(id).addEventListener("click",function(){const r=document.createRange();r.selectNodeContents(this);const s=window.getSelection();s.removeAllRanges();s.addRange(r);});});
+// Left arrow ← = move from Selected → Available
+document.getElementById("toAvailable").addEventListener("click",()=>{
+  const movingBack=[...flagsSelectedEl.selectedOptions].map(o=>o.value);
+  movingBack.forEach(f=>{availableFlags.push(f); selectedFlags=selectedFlags.filter(a=>a!==f);});
+  refreshLists();
+});
 
-const maleFirstNames = [
-  // Original
-  "Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander",
-  "Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo",
-  "Jack","Owen","Theodore","Aiden","Samuel",
+// Populate flags immediately
+refreshLists();
 
-  // Māori / NZ additions (male + neutral)
-  "Wiremu","Tama","Manaia","Hemi","Rangi","Nikau","Tane","Rawiri","Hoani","Kauri",
-  "Ari","Anaru","Pita","Kahu","Matiu","Niko","Tai","Rewi","Hori","Rau","Wire",
-  "Tawhiri","Ihaia","Tipene","Taimana","Mako","Aroha","Tui","Whetu","Kahu","TeManu",
-  "Rongo","Tamaora","TeAriki","Koroki","Mikaere","Arona","Kereama","TeRangi","Hone","Pene",
-  "Tawera","Eru","Tuterangi","Tioriori","Kawhena","Hera","Kahurangi","Whiti","Turanga",
-  "Takuta","Pounamu","Rere","Maru","Rata","Ngaio","Makoha","Tamaroa","Tohu","Wirekura",
+// Main license logic
+const mainLicenseBtns = document.querySelectorAll("#mainLicenseBtns button");
+const otherLicenseBtns = document.querySelectorAll("#otherLicenseBtns button");
 
-  // Common NZ European names (extra)
-  "Thomas","Charlie","George","Harrison","Finn","Cooper","Lachlan","Blake","Hunter",
-  "Isaac","Joshua","Callum","Connor","Jordan","Cameron","Tyler","Zachary","Dylan",
-  "Caleb","Elliot","Nathan","Ryan","Oscar","Archie","Patrick","Jasper","Miles","Spencer",
-  "Logan","Cole","Max","Austin","Dominic","Brayden","Shane","Corey","Mitchell","Aaron",
-  "Travis","Ewan","Flynn","Reid","Declan","Ashton","Hayden","Kane","Brandon","Marcus",
-  "Jayden","Troy","Scott","Riley","Samson","Leo","Eli","Christian","Damian","Xavier"
-];
+mainLicenseBtns.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    mainLicenseBtns.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("licenseValue").value=btn.dataset.value;
+    otherLicenseBtns.forEach(b=>{
+      if(["2","3","4","5"].includes(b.dataset.value)){
+        b.disabled = !(btn.dataset.value==="1F");
+        b.style.opacity = b.disabled ? 0.5 : 1;
+      } else {b.disabled=false; b.style.opacity=1;}
+    });
+  });
+});
 
-const lastNames = [
-  // Original
-  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
-  "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
-  "Lee","Perez","Thompson","White","Harris",
+// Other license tooltips & selection
+otherLicenseBtns.forEach(btn=>{
+  let text="";
+  switch(btn.dataset.value){
+    case '2': text="Medium rigid vehicle"; break;
+    case '3': text="Medium combination vehicle"; break;
+    case '4': text="Heavy rigid vehicle"; break;
+    case '5': text="Heavy combination vehicle"; break;
+    case '6': text="Motorcycle"; break;
+  }
+  btn.classList.add("other-license-tooltip");
+  btn.setAttribute("data-tooltip",text);
+  btn.addEventListener("click",()=>{
+    if(!btn.disabled){
+      btn.classList.toggle("active");
+      const selected = [...otherLicenseBtns].filter(b=>b.classList.contains("active")).map(b=>b.dataset.value);
+      document.getElementById("otherLicensesValue").value = selected.join(", ");
+    }
+  });
+});
 
-  // Common NZ European surnames
-  "Andrews","Clark","King","Scott","Edwards","Walker","Murray","McKenzie","McDonald","Graham",
-  "Stewart","Campbell","Fraser","Reid","Alexander","Ross","Douglas","Marshall","Kerr","McLean",
-  "Fletcher","Boyd","Munro","Sinclair","Wallace","Forbes","Henderson","Allan","MacDonald","Cameron",
-
-  // Māori surnames
-  "Ngata","Rangihau","TeRangi","Waititi","Tamihana","Wikaira","Henare","Tipene","Waaka","TeHeuheu",
-  "Katene","Tau","Wharekawa","Ngawhika","Ranginui","Reihana","Parata","Turei","TeAho","Kawana",
-  "Perenara","Ropiha","Haami","Whaitiri","TeKanawa","Whiu","TePaea","Moana","Ngawaka","Whanau",
-  "Wanoa","Hikuroa","Hotere","TeWhiti","Tirikatene","Taiaroa","TePuni","Hekenui","Pomare","Apirana",
-  "Aranui","Wharekura","Paora","TeAo","Ngawhare","Tipiwai","Pikiao","Hona","Waiariki","Ngakuru"
-];
-
-const nzFlags=["Warrant to Arrest: Failure to appear in court","Warrant to Arrest: Breach of bail conditions","Warrant to Arrest: Breach of domestic violence order","Warrant to Arrest: Possession of illegal drugs","Warrant to Arrest: Theft","Warrant to Arrest: Assault","Warrant to Arrest: Driving offenses","Warrant to Arrest: Outstanding fines"];
-
+// Randomize QP names
 document.getElementById("randomQP").addEventListener("click",()=>{
-  document.getElementById("firstName").value=maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
-  document.getElementById("lastName").value=lastNames[Math.floor(Math.random()*lastNames.length)];
-  document.getElementById("occupation").value="Civilian";
-  document.getElementById("qpFlags").value="";
-  document.getElementById("flagChoice").style.display="block";
+  document.getElementById("firstName").value = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
+  document.getElementById("lastName").value = lastNames[Math.floor(Math.random()*lastNames.length)];
 });
 
-document.getElementById("flagYes").addEventListener("click",()=>{
-  document.getElementById("qpFlags").value=nzFlags[Math.floor(Math.random()*nzFlags.length)];
-  document.getElementById("flagChoice").style.display="none";
-});
-document.getElementById("flagNo").addEventListener("click",()=>{
-  document.getElementById("qpFlags").value="";
-  document.getElementById("flagChoice").style.display="none";
+// Generate QP
+document.getElementById("generateQP").addEventListener("click",()=>{
+  const first=document.getElementById("firstName").value||"Nil";
+  const last=document.getElementById("lastName").value||"Nil";
+  const dob=document.getElementById("age").value||"Nil";
+  const address=document.getElementById("address").value||"Nil";
+  const occ=document.getElementById("occupation").value||"Nil";
+  const mainLic=document.getElementById("licenseValue").value||"Nil";
+  const otherLic=document.getElementById("otherLicensesValue").value||"None";
+  const flags = freeTextFlags.value||"None";
+
+  document.getElementById("outputQP").innerText=
+`~y~Name:~b~ ${first} ${last} ~y~DOB:~b~ ${dob} ~y~Address:~b~ ${address} ~y~Occupation:~b~ ${occ} ~y~License(s):~b~ ${mainLic}${otherLic!=="None"?", "+otherLic:""} ~y~Flags:~b~ ${flags}`;
 });
 </script>
 </body>
