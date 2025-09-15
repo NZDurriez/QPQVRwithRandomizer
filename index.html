@@ -426,14 +426,27 @@ refreshSafetyLists();
 document.getElementById("randomQP").addEventListener("click",()=>{document.getElementById("firstName").value = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];document.getElementById("lastName").value = lastNames[Math.floor(Math.random()*lastNames.length)];});
 
 // Generate QP output
+// Generate QP output
 document.getElementById("generateQP").addEventListener("click",()=> {
   const f = document.getElementById("firstName").value || "Nil";
   const l = document.getElementById("lastName").value || "Nil";
   const dob = document.getElementById("age").value || "Nil";
   const addr = document.getElementById("address").value || "Nil";
   const occ = document.getElementById("occupation").value || "Nil";
-  const mainLic = document.getElementById("licenseValue").value || "None";
-  const otherLic = document.getElementById("otherLicensesValue").value || "None";
+  
+  // Combine main + other licenses
+  let allLicenses = [];
+  const mainLic = document.getElementById("licenseValue").value;
+  if(mainLic) allLicenses.push(mainLic);
+  const otherLic = document.getElementById("otherLicensesValue").value;
+  if(otherLic){
+    const otherArray = otherLic.split(",").map(x=>x.trim()).filter(x=>x); // remove empty
+    otherArray.sort((a,b)=>parseInt(a)-parseInt(b)); // numerical order
+    allLicenses = allLicenses.concat(otherArray);
+  }
+  
+  const licensesOutput = allLicenses.length ? allLicenses.join(",") : "None";
+
   let flagsList = selectedFlags.length ? [...selectedFlags] : [];
   
   // Process warrants
@@ -451,8 +464,10 @@ document.getElementById("generateQP").addEventListener("click",()=> {
 
   const safetyFlags = document.getElementById("qpSafetyFlags").value || "None";
 
-  document.getElementById("outputQP").innerText = `~y~Name:~b~${f} ${l} ~y~DOB:~b~${dob} ~y~Address:~b~${addr} ~y~Occupation:~b~${occ} ~y~License(s):~b~${mainLic} ~y~Other License(s):~b~${otherLic} ~y~Flags:~b~${flagsOutput} ~y~Staff Safety Flags:~b~${safetyFlags}`;
+  document.getElementById("outputQP").innerText = `~y~Name:~b~${f} ${l} ~y~DOB:~b~${dob} ~y~Address:~b~${addr} ~y~Occupation:~b~${occ} ~y~License(s):~b~${licensesOutput} ~y~Flags:~b~${flagsOutput} ~y~Staff Safety Flags:~b~${safetyFlags}`;
 });
+
+
 
 </script>
 </body>
