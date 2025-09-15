@@ -65,7 +65,8 @@ button.generate:hover { background:#0056b3; }
   position:left;
 }
 .license-buttons button.active, .radio-buttons button.active {
-  background:#007bff;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 /* Tooltip styles - dark gray background with white text */
@@ -93,18 +94,12 @@ button.generate:hover { background:#0056b3; }
 
 /* Main license buttons */
 .radio-buttons button.active {
-  background-color: #007bff;
-  color: white;
   outline: 3px solid #fff;
-  outline-offset: 2px;
 }
 
 /* Other license buttons */
 .license-buttons button.active {
-  background-color: #FFD966;
-  color: black;
   outline: 3px solid #fff;
-  outline-offset: 2px;
 }
 
 </style>
@@ -225,7 +220,7 @@ button.generate:hover { background:#0056b3; }
 <!-- Flags Section -->
 <div class="form-group">
   <label>Flags</label>
-  <input type="text" id="freeTextFlags" placeholder="Edit flags here..." />
+  <input type="text" id="freeTextFlags" placeholder="e.g Warrant to Arrest: Aggravated Assault" />
 </div>
 
 <div class="dual-list-container">
@@ -325,28 +320,51 @@ const safetyFlagsList = [
   "Resists Arrest",
   "Dangerous when Confronted",
   "Repeat Offender",
-  "High-Risk Vehicle Operator",
   "Stolen Vehicle Involvement",
-  "Evading Police",
-  "Suspicious Behaviour",
   "Violent Towards Police",
-  "Firearms Training / Skill",
   "Known associate of Bonqueque"
 ];
 
-// License buttons logic
-function activateButtons(containerId, hiddenInputId) {
+// Main License logic (only one selectable)
+function singleSelectMain(containerId, hiddenInputId) {
   const container = document.getElementById(containerId);
   const hiddenInput = document.getElementById(hiddenInputId);
-  container.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click",()=>{btn.classList.toggle("active");
-      const selected=[...container.querySelectorAll("button.active")].map(b=>b.dataset.value);
-      hiddenInput.value=selected.join(",");
+  container.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      container.querySelectorAll("button").forEach(b=>{
+        if(b!==btn) b.classList.remove("active");
+      });
+      btn.classList.toggle("active");
+      hiddenInput.value = btn.classList.contains("active") ? btn.dataset.value : "";
+      refreshOtherLicenseAvailability();
     });
   });
 }
-activateButtons("mainLicenseBtns","licenseValue");
-activateButtons("otherLicenseBtns","otherLicensesValue");
+singleSelectMain("mainLicenseBtns","licenseValue");
+
+// Other License buttons logic with 1F restriction
+function activateOtherLicenses() {
+  const container = document.getElementById("otherLicenseBtns");
+  const hiddenInput = document.getElementById("otherLicensesValue");
+  container.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", ()=>{
+      if(btn.dataset.value !== "6") {
+        if(!document.querySelector("#mainLicenseBtns button[data-value='1F']").classList.contains("active")) return;
+      }
+      btn.classList.toggle("active");
+      const selected = [...container.querySelectorAll("button.active")].map(b=>b.dataset.value);
+      hiddenInput.value = selected.join(",");
+    });
+  });
+}
+activateOtherLicenses();
+
+function refreshOtherLicenseAvailability() {
+  const is1FActive = document.querySelector("#mainLicenseBtns button[data-value='1F']").classList.contains("active");
+  document.querySelectorAll("#otherLicenseBtns button").forEach(btn=>{
+    if(btn.dataset.value!=="6") btn.disabled = !is1FActive;
+  });
+}
 
 // Dual-list logic for Flags
 let availableFlags = [...nzFlags];
@@ -362,16 +380,8 @@ function refreshFlagsLists(){
   document.getElementById("qpFlags").value=selectedFlags.join(", ");
   freeTextFlags.value=selectedFlags.join(", ");
 }
-document.getElementById("toSelected").addEventListener("click",()=>{
-  const moving=[...flagsAvailableEl.selectedOptions].map(o=>o.value);
-  moving.forEach(f=>{selectedFlags.push(f);availableFlags=availableFlags.filter(a=>a!==f);});
-  refreshFlagsLists();
-});
-document.getElementById("toAvailable").addEventListener("click",()=>{
-  const movingBack=[...flagsSelectedEl.selectedOptions].map(o=>o.value);
-  movingBack.forEach(f=>{availableFlags.push(f);selectedFlags=selectedFlags.filter(a=>a!==f);});
-  refreshFlagsLists();
-});
+document.getElementById("toSelected").addEventListener("click",()=>{const moving=[...flagsAvailableEl.selectedOptions].map(o=>o.value);moving.forEach(f=>{selectedFlags.push(f);availableFlags=availableFlags.filter(a=>a!==f);});refreshFlagsLists();});
+document.getElementById("toAvailable").addEventListener("click",()=>{const movingBack=[...flagsSelectedEl.selectedOptions].map(o=>o.value);movingBack.forEach(f=>{availableFlags.push(f);selectedFlags=selectedFlags.filter(a=>a!==f);});refreshFlagsLists();});
 refreshFlagsLists();
 
 // Dual-list logic for Safety Flags
@@ -388,23 +398,12 @@ function refreshSafetyLists() {
   document.getElementById("qpSafetyFlags").value = selectedSafetyFlags.join(", ");
   safetyFreeTextFlags.value = selectedSafetyFlags.join(", ");
 }
-document.getElementById("toSafetySelected").addEventListener("click", ()=>{
-  const moving=[...safetyAvailableEl.selectedOptions].map(o=>o.value);
-  moving.forEach(f=>{selectedSafetyFlags.push(f);availableSafetyFlags=availableSafetyFlags.filter(a=>a!==f);});
-  refreshSafetyLists();
-});
-document.getElementById("toSafetyAvailable").addEventListener("click", ()=>{
-  const movingBack=[...safetySelectedEl.selectedOptions].map(o=>o.value);
-  movingBack.forEach(f=>{availableSafetyFlags.push(f);selectedSafetyFlags=selectedSafetyFlags.filter(a=>a!==f);});
-  refreshSafetyLists();
-});
+document.getElementById("toSafetySelected").addEventListener("click", ()=>{const moving=[...safetyAvailableEl.selectedOptions].map(o=>o.value);moving.forEach(f=>{selectedSafetyFlags.push(f);availableSafetyFlags=availableSafetyFlags.filter(a=>a!==f);});refreshSafetyLists();});
+document.getElementById("toSafetyAvailable").addEventListener("click", ()=>{const movingBack=[...safetySelectedEl.selectedOptions].map(o=>o.value);movingBack.forEach(f=>{availableSafetyFlags.push(f);selectedSafetyFlags=selectedSafetyFlags.filter(a=>a!==f);});refreshSafetyLists();});
 refreshSafetyLists();
 
 // Random QP Generator
-document.getElementById("randomQP").addEventListener("click",()=>{
-  document.getElementById("firstName").value = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
-  document.getElementById("lastName").value = lastNames[Math.floor(Math.random()*lastNames.length)];
-});
+document.getElementById("randomQP").addEventListener("click",()=>{document.getElementById("firstName").value = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];document.getElementById("lastName").value = lastNames[Math.floor(Math.random()*lastNames.length)];});
 
 // Generate QP output
 document.getElementById("generateQP").addEventListener("click",()=> {
@@ -422,15 +421,12 @@ document.getElementById("generateQP").addEventListener("click",()=> {
   const otherFlags = flagsList.filter(f => !f.startsWith("Warrant to Arrest:"));
   let flagsOutput = "";
   if(warrantFlags.length === 1){
-    flagsOutput = warrantFlags[0]; // single warrant
+    flagsOutput = "Warrant for Arrest: " + warrantFlags[0].replace("Warrant to Arrest:", "").trim();
   } else if(warrantFlags.length > 1){
     const offences = warrantFlags.map(f => f.replace("Warrant to Arrest:", "").trim());
     flagsOutput = "Warrants for Arrest: " + offences.join(", ");
   }
-  // append other flags
-  if(otherFlags.length) {
-    flagsOutput += (flagsOutput ? ", " : "") + otherFlags.join(", ");
-  }
+  if(otherFlags.length) flagsOutput += (flagsOutput ? ", " : "") + otherFlags.join(", ");
   if(!flagsOutput) flagsOutput = "None";
 
   const safetyFlags = document.getElementById("qpSafetyFlags").value || "None";
