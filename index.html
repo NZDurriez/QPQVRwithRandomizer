@@ -72,14 +72,13 @@ button.generate:hover { background:#0056b3; }
 
 /* Tooltip styles */
 .license-buttons button {
-  position: relative; /* necessary for ::after positioning */
+  position: relative;
 }
-
 .license-buttons button[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  top: -35px;       /* adjust above button */
-  left: 50%;        /* center horizontally */
+  top: -35px;
+  left: 50%;
   transform: translateX(-50%);
   background: #333;
   color: #fff;
@@ -97,6 +96,17 @@ button.generate:hover { background:#0056b3; }
 #mainLicenseBtns button[data-value="1R"] { background-color: #FFD700; color: black; }
 #mainLicenseBtns button[data-value="1F"] { background-color: #28a745; color: white; }
 
+/* Dice buttons */
+.dice-btn {
+  background:none;
+  border:none;
+  color:white;
+  font-size:1.1rem;
+  cursor:pointer;
+  margin-right:5px;
+  padding:0;
+}
+.dice-btn:hover { color:#FFD700; }
 </style>
 </head>
 <body>
@@ -104,8 +114,8 @@ button.generate:hover { background:#0056b3; }
 <h2 class="title">QP & QVR Generator</h2>
 
 <div class="toggle-buttons">
-  <button onclick="showQVR()">Vehicle | QVR Generator</button>
-  <button onclick="showQP()">Character | QP Generator</button>
+  <button>Vehicle | QVR Generator</button>
+  <button>Character | QP Generator</button>
 </div>
 
 <!-- QVR Section -->
@@ -147,7 +157,6 @@ button.generate:hover { background:#0056b3; }
     <label>Flags:</label>
     <input type="text" id="flags" placeholder="Eg. Owner has active WTA" />
   </div>
-  <button class="generate" id="generateQVR">Generate QVR</button>
   <button class="toggle-instructions" id="toggleInstructionsQVR">Show Instructions</button>
   <div class="instructions-container" id="instructionsQVR">
     <ol class="instructions">
@@ -157,6 +166,7 @@ button.generate:hover { background:#0056b3; }
       <li>Save and activate.</li>
     </ol>
   </div>
+  <button class="generate" id="generateQVR">Generate QVR</button>
   <div class="output-container">
     <p id="outputQVR" class="output"></p>
   </div>
@@ -169,16 +179,26 @@ button.generate:hover { background:#0056b3; }
 
 <div class="form-group">
   <label>First Name:</label>
-  <input type="text" id="firstName" placeholder="John" />
+  <div style="display:flex; align-items:center; gap:5px; width:55%;">
+    <button class="dice-btn" id="diceFirstName">🎲</button>
+    <input type="text" id="firstName" placeholder="John" style="flex:1;" />
+  </div>
 </div>
 <div class="form-group">
   <label>Last Name:</label>
-  <input type="text" id="lastName" placeholder="Doe" />
+  <div style="display:flex; align-items:center; gap:5px; width:55%;">
+    <button class="dice-btn" id="diceLastName">🎲</button>
+    <input type="text" id="lastName" placeholder="Doe" style="flex:1;" />
+  </div>
 </div>
 <div class="form-group">
   <label>Date of Birth:</label>
-  <input type="text" id="age" placeholder="01 Jan 1994" />
+  <div style="display:flex; align-items:center; gap:5px; width:55%;">
+    <button class="dice-btn" id="diceDOB">🎲</button>
+    <input type="text" id="age" placeholder="01 Jan 1994" style="flex:1;" />
+  </div>
 </div>
+
 <div class="form-group">
   <label>Address:</label>
   <input type="text" id="address" placeholder="845 Grove Street" />
@@ -245,8 +265,17 @@ button.generate:hover { background:#0056b3; }
   </div>
 </div>
 
-<button class="generate" id="generateQP">Generate QP</button>
+<button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
+<div class="instructions-container" id="instructionsQP">
+  <ol class="instructions">
+    <li>Hit T in chat,</li>
+    <li>Type /civ,</li>
+    <li>Paste the generated QP into the character menu,</li>
+    <li>Save and activate.</li>
+  </ol>
+</div>
 
+<button class="generate" id="generateQP">Generate QP</button>
 <div class="output-container">
   <p id="outputQP" class="output"></p>
 </div>
@@ -302,166 +331,153 @@ const safetyFlagsList = [
   "Known associate of Bonqueque"
 ];
 
-// Toggle Sections
-function showQVR() { document.getElementById('qvrSection').style.display='block'; document.getElementById('qpSection').style.display='none'; }
-function showQP() { document.getElementById('qpSection').style.display='block'; document.getElementById('qvrSection').style.display='none'; }
+// --- Populate Flags Dual List ---
+const flagsListEl = document.getElementById('flagsList');
+nzFlags.forEach(f => { const o=document.createElement('option'); o.value=f;o.text=f; flagsListEl.appendChild(o); });
 
-// Instructions toggle
-document.getElementById('toggleInstructionsQVR').onclick = () => {
-  const ins = document.getElementById('instructionsQVR');
-  ins.style.display = ins.style.display==='none'?'block':'none';
-};
+const staffFlagsListEl = document.getElementById('staffFlagsList');
+safetyFlagsList.forEach(f => { const o=document.createElement('option'); o.value=f;o.text=f; staffFlagsListEl.appendChild(o); });
 
-// Populate Flags Lists
-function populateSelect(id, arr) {
-  const sel = document.getElementById(id);
-  sel.innerHTML = '';
-  arr.forEach(f => { const opt = document.createElement('option'); opt.text=f; sel.add(opt); });
-}
-populateSelect('flagsList', nzFlags);
-populateSelect('staffFlagsList', safetyFlagsList);
-
-// Move between dual lists
-function moveItems(sourceId, targetId) {
-  const src = document.getElementById(sourceId);
-  const tgt = document.getElementById(targetId);
-  Array.from(src.selectedOptions).forEach(opt => { tgt.add(opt); });
-}
-function removeItems(sourceId, targetId) {
-  const src = document.getElementById(sourceId);
-  const tgt = document.getElementById(targetId);
-  Array.from(tgt.selectedOptions).forEach(opt => { src.add(opt); });
-}
-
-document.getElementById('addFlag').onclick = () => moveItems('flagsList','selectedFlags');
-document.getElementById('removeFlag').onclick = () => removeItems('flagsList','selectedFlags');
-document.getElementById('addStaffFlag').onclick = () => moveItems('staffFlagsList','selectedStaffFlags');
-document.getElementById('removeStaffFlag').onclick = () => removeItems('staffFlagsList','selectedStaffFlags');
-
-// License Buttons Logic
-const mainBtns = document.querySelectorAll('#mainLicenseBtns button');
-const otherBtns = document.querySelectorAll('#otherLicenseBtns button');
-
-mainBtns.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    mainBtns.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('licenseValue').value=btn.dataset.value;
-    // Enable/disable 2-5
-    otherBtns.forEach(ob=>{
-      if(['2','3','4','5'].includes(ob.dataset.value)){
-        ob.disabled = !(btn.dataset.value==='1F');
-        ob.style.backgroundColor = ob.disabled?'#666':'#AAAAAA';
-        ob.style.cursor = ob.disabled?'not-allowed':'pointer';
-      }
-    });
+// Add/remove dual-list buttons
+document.getElementById('addFlag').addEventListener('click', ()=>{
+  Array.from(flagsListEl.selectedOptions).forEach(o=>{
+    document.getElementById('selectedFlags').appendChild(o);
+  });
+});
+document.getElementById('removeFlag').addEventListener('click', ()=>{
+  Array.from(document.getElementById('selectedFlags').selectedOptions).forEach(o=>{
+    flagsListEl.appendChild(o);
+  });
+});
+document.getElementById('addStaffFlag').addEventListener('click', ()=>{
+  Array.from(staffFlagsListEl.selectedOptions).forEach(o=>{
+    document.getElementById('selectedStaffFlags').appendChild(o);
+  });
+});
+document.getElementById('removeStaffFlag').addEventListener('click', ()=>{
+  Array.from(document.getElementById('selectedStaffFlags').selectedOptions).forEach(o=>{
+    staffFlagsListEl.appendChild(o);
   });
 });
 
-otherBtns.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    if(btn.disabled) return;
-    btn.classList.toggle('active');
-    const selected = Array.from(otherBtns).filter(b=>b.classList.contains('active')).map(b=>b.dataset.value);
-    document.getElementById('otherLicensesValue').value = selected.join(',');
-  });
+// Toggle generators
+const [qvrBtn, qpBtn] = document.querySelectorAll('.toggle-buttons button');
+qvrBtn.addEventListener('click', ()=>{
+  document.getElementById('qvrSection').style.display='block';
+  document.getElementById('qpSection').style.display='none';
+});
+qpBtn.addEventListener('click', ()=>{
+  document.getElementById('qvrSection').style.display='none';
+  document.getElementById('qpSection').style.display='block';
 });
 
-// Randomize QP
-document.getElementById('randomQP').onclick = () => {
-  const fn = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
-  const ln = lastNames[Math.floor(Math.random()*lastNames.length)];
-  document.getElementById('firstName').value = fn;
-  document.getElementById('lastName').value = ln;
-};
+// Toggle instructions
+document.getElementById('toggleInstructionsQVR').addEventListener('click', ()=>{
+  const c=document.getElementById('instructionsQVR');
+  c.style.display=c.style.display==='block'?'none':'block';
+});
+document.getElementById('toggleInstructionsQP').addEventListener('click', ()=>{
+  const c=document.getElementById('instructionsQP');
+  c.style.display=c.style.display==='block'?'none':'block';
+});
 
-// Generate QP
-// Generate QP
-document.getElementById('generateQP').onclick = () => {
-  const f = document.getElementById('firstName').value.trim();
-  const l = document.getElementById('lastName').value.trim();
-  const dob = document.getElementById('age').value.trim();
-  const addr = document.getElementById('address').value.trim();
-  const occ = document.getElementById('occupation').value.trim();
-  let mainLic = document.getElementById('licenseValue').value;
-  const otherLic = Array.from(otherBtns).filter(b=>b.classList.contains('active')).map(b=>b.dataset.value);
+// --- Dice Randomizers ---
+function randomItem(arr){return arr[Math.floor(Math.random()*arr.length)];}
+document.getElementById('diceFirstName').addEventListener('click', ()=>{document.getElementById('firstName').value=randomItem(maleFirstNames);});
+document.getElementById('diceLastName').addEventListener('click', ()=>{document.getElementById('lastName').value=randomItem(lastNames);});
+document.getElementById('diceDOB').addEventListener('click', ()=>{
+  const year = Math.floor(Math.random()*(2005-1973+1))+1973; // age 18-50
+  const month = Math.floor(Math.random()*12)+1;
+  const day = Math.floor(Math.random()*28)+1;
+  document.getElementById('age').value=(`${day}`.padStart(2,'0')+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month-1]+' '+year);
+});
 
-  // Merge licenses and sort numerically
-  let allLic = [mainLic, ...otherLic].filter(Boolean);
-  // Sort: 1F,1L,1R first then numbers ascending
-  allLic.sort((a,b)=>{
-    const order=['1F','1L','1R']; 
-    if(order.includes(a) && order.includes(b)) return order.indexOf(a)-order.indexOf(b);
-    if(order.includes(a)) return -1; 
-    if(order.includes(b)) return 1;
-    return parseInt(a)-parseInt(b);
-  });
+// Randomize QP button
+document.getElementById('randomQP').addEventListener('click', ()=>{
+  document.getElementById('firstName').value=randomItem(maleFirstNames);
+  document.getElementById('lastName').value=randomItem(lastNames);
+  const year = Math.floor(Math.random()*(2005-1973+1))+1973; 
+  const month = Math.floor(Math.random()*12)+1;
+  const day = Math.floor(Math.random()*28)+1;
+  document.getElementById('age').value=(`${day}`.padStart(2,'0')+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month-1]+' '+year);
+});
 
-  const flagsSelected = Array.from(document.getElementById('selectedFlags').options).map(o=>o.value);
-  const freeFlags = document.getElementById('freeFlags').value.split(',').map(s=>s.trim()).filter(s=>s);
-  const staffSelected = Array.from(document.getElementById('selectedStaffFlags').options).map(o=>o.value);
-  const freeStaff = document.getElementById('freeStaffFlags').value.split(',').map(s=>s.trim()).filter(s=>s);
+// --- Generate QP Output ---
+document.getElementById('generateQP').addEventListener('click', ()=>{
+  const first=document.getElementById('firstName').value;
+  const last=document.getElementById('lastName').value;
+  const dob=document.getElementById('age').value;
+  const address=document.getElementById('address').value;
+  const occupation=document.getElementById('occupation').value;
+  const mainLic = Array.from(document.querySelectorAll('#mainLicenseBtns button.active')).map(b=>b.dataset.value);
+  const otherLic = Array.from(document.querySelectorAll('#otherLicenseBtns button.active')).map(b=>b.dataset.value);
+  const licenses = mainLic.concat(otherLic);
+  const licensesText = licenses.length?licenses.join(', '):'Nil';
 
-  const allFlags = [...flagsSelected, ...freeFlags];
-  const allStaff = [...staffSelected, ...freeStaff];
+  // Flags
+  let flagsText=Array.from(document.getElementById('selectedFlags').options).map(o=>o.value).join(', ');
+  const freeFlags=document.getElementById('freeFlags').value.trim();
+  if(freeFlags) flagsText+=(flagsText?', ':'')+freeFlags;
+  flagsText = (flagsText && flagsText.toLowerCase()!=='nil' && flagsText.toLowerCase()!=='none') 
+              ? '~r~'+flagsText : '~b~'+(flagsText || 'Nil');
 
-  // Correctly build flags lines to avoid extra ~
-  const flagsLine = allFlags.length>0 ? `~y~Flags:~r~${allFlags.join(', ')}` : `~y~Flags:~b~Nil`;
-  const staffFlagsLine = allStaff.length>0 ? `~y~Staff Safety Flags:~r~${allStaff.join(', ')}` : `~y~Staff Safety Flags:~b~Nil`;
+  // Staff Safety Flags
+  let staffFlagsText=Array.from(document.getElementById('selectedStaffFlags').options).map(o=>o.value).join(', ');
+  const freeStaffFlags=document.getElementById('freeStaffFlags').value.trim();
+  if(freeStaffFlags) staffFlagsText+=(staffFlagsText?', ':'')+freeStaffFlags;
+  staffFlagsText = (staffFlagsText && staffFlagsText.toLowerCase()!=='nil' && staffFlagsText.toLowerCase()!=='none') 
+                   ? '~r~'+staffFlagsText : '~b~'+(staffFlagsText || 'Nil');
 
-  const output = `~y~Name:~b~${(f||'Nil')} ${(l||'')}`.trim() + `\n`+
-                 `~y~DOB:~b~${dob||'Nil'}\n`+
-                 `~y~Address:~b~${addr||'Nil'}\n`+
-                 `~y~Occupation:~b~${occ||'Nil'}\n`+
-                 `~y~License(s):~b~${allLic.length>0?allLic.join(', '):'Nil'}\n`+
-                 `${flagsLine}\n`+
-                 `${staffFlagsLine}`;
+  const output=
+    `~y~Name:~b~${first} ${last} `+
+    `~y~DOB:~b~${dob} `+
+    `~y~Address:~b~${address} `+
+    `~y~Occupation:~b~${occupation} `+
+    `~y~License(s):~b~${licensesText} `+
+    `~y~Flags:${flagsText} `+
+    `~y~Staff Safety Flags:${staffFlagsText}`;
 
-  const outputElem = document.getElementById('outputQP');
-  outputElem.textContent = output;
+  document.getElementById('outputQP').textContent=output;
+});
 
-  // Auto-select all text
-  const range = document.createRange();
-  range.selectNodeContents(outputElem);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-};
-
-	// QVR Generator
-	// Generate QVR
-document.getElementById('generateQVR').onclick = () => {
-  const plate = document.getElementById('plate').value.trim() || 'Nil';
-  const owner = document.getElementById('owner').value.trim() || 'Nil';
+// --- Generate QVR Output ---
+document.getElementById('generateQVR').addEventListener('click', ()=>{
+  const plate = document.getElementById('plate').value;
+  const owner = document.getElementById('owner').value;
   const woF = document.getElementById('woF').value;
   const rego = document.getElementById('rego').value;
-  const make = document.getElementById('make').value.trim() || 'Nil';
-  const model = document.getElementById('model').value.trim() || 'Nil';
-  const year = document.getElementById('year').value.trim() || 'Nil';
-  const color = document.getElementById('color').value.trim() || 'Nil';
-  const flags = document.getElementById('flags').value.trim() || 'Nil';
+  const make = document.getElementById('make').value;
+  const model = document.getElementById('model').value;
+  const year = document.getElementById('year').value;
+  const color = document.getElementById('color').value;
+  const flagsRaw = document.getElementById('flags').value.trim();
 
-  const output = `~y~Vehicle Plate:~b~${plate}\n` +
-                 `~y~Registered Owner:~b~${owner}\n` +
-                 `~y~Warrant of Fitness:~b~${woF}\n` +
-                 `~y~Rego:~b~${rego}\n` +
-                 `~y~Make:~b~${make}\n` +
-                 `~y~Model:~b~${model}\n` +
-                 `~y~Year:~b~${year}\n` +
-                 `~y~Colour:~b~${color}\n` +
-                 `~y~Flags:~b~${flags}`;
+  const flags = (flagsRaw && flagsRaw.toLowerCase()!=='none' && flagsRaw.toLowerCase()!=='nil') 
+                ? '~r~'+flagsRaw : '~b~'+(flagsRaw || 'None');
 
-  const outputElem = document.getElementById('outputQVR');
-  outputElem.textContent = output;
+  const outputQVR = 
+    `~y~Plate:~b~${plate} ` +
+    `~y~Owner:~b~${owner} ` +
+    `~y~WoF:~b~${woF} ` +
+    `~y~Rego:~b~${rego} ` +
+    `~y~Make:~b~${make} ` +
+    `~y~Model:~b~${model} ` +
+    `~y~Year:~b~${year} ` +
+    `~y~Color:~b~${color} ` +
+    `~y~Flags:${flags}`;
 
-  // Auto-select all text
-  const range = document.createRange();
-  range.selectNodeContents(outputElem);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-};
+  document.getElementById('outputQVR').textContent = outputQVR;
+});
+
+
+// License buttons toggle
+document.querySelectorAll('#mainLicenseBtns button, #otherLicenseBtns button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    btn.classList.toggle('active');
+  });
+});
 
 </script>
+</div>
 </body>
 </html>
