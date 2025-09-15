@@ -409,7 +409,7 @@ document.getElementById('generateQP').onclick = () => {
   const flagsLine = allFlags.length>0 ? `~y~Flags:~r~${allFlags.join(', ')}` : `~y~Flags:~b~Nil`;
   const staffFlagsLine = allStaff.length>0 ? `~y~Staff Safety Flags:~r~${allStaff.join(', ')}` : `~y~Staff Safety Flags:~b~Nil`;
 
-  const output = `~y~Name:~b~${f||'Nil'}\n`+
+  const output = `~y~Name:~b~${(f||'Nil')} ${(l||'')}`.trim() + `\n`+
                  `~y~DOB:~b~${dob||'Nil'}\n`+
                  `~y~Address:~b~${addr||'Nil'}\n`+
                  `~y~Occupation:~b~${occ||'Nil'}\n`+
