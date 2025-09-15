@@ -72,49 +72,38 @@ button.generate:hover { background:#0056b3; }
 .other-license-tooltip:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  background: #333;        /* Dark gray background */
-  color: #fff;             /* White text */
+  background: #333;
+  color: #fff;
   padding: 3px 6px;
   border-radius: 4px;
   top: -30px;
   white-space: nowrap;
   font-size: 0.8rem;
   z-index: 10;
-  box-shadow: 0 0 5px rgba(0,0,0,0.5); /* Optional: subtle shadow */
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
 /* Main license button colors */
-#mainLicenseBtns button[data-value="1L"] {
-  background-color: #007bff; /* Blue */
-  color: white;
-}
-#mainLicenseBtns button[data-value="1R"] {
-  background-color: #FFD700; /* Yellow */
-  color: black;
-}
-#mainLicenseBtns button[data-value="1F"] {
-  background-color: #28a745; /* Green */
-  color: white;
-}
+#mainLicenseBtns button[data-value="1L"] { background-color: #007bff; color: white; }
+#mainLicenseBtns button[data-value="1R"] { background-color: #FFD700; color: black; }
+#mainLicenseBtns button[data-value="1F"] { background-color: #28a745; color: white; }
 
 /* Keep hover effect consistent */
-#mainLicenseBtns button:hover {
-  opacity: 0.8;
-}
+#mainLicenseBtns button:hover { opacity: 0.8; }
 
 /* Main license buttons */
 .radio-buttons button.active {
-  background-color: #007bff; /* existing color */
+  background-color: #007bff;
   color: white;
-  outline: 3px solid #fff; /* white outline */
-  outline-offset: 2px;      /* some space between button and outline */
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 /* Other license buttons */
 .license-buttons button.active {
-  background-color: #FFD966; /* soft yellow */
+  background-color: #FFD966;
   color: black;
-  outline: 3px solid #fff;   /* white outline */
+  outline: 3px solid #fff;
   outline-offset: 2px;
 }
 
@@ -250,6 +239,24 @@ button.generate:hover { background:#0056b3; }
   <select id="flagsAvailable" multiple size="6"></select>
 </div>
 <input type="hidden" id="qpFlags" />
+<center>------------</center></br>
+<!-- Safety Flags Section -->
+<div class="form-group">
+  <label>Safety Flags</label>
+  <input type="text" id="safetyFreeTextFlags" placeholder="e.g Carries Knives/Firearms" />
+</div>
+
+<div class="dual-list-container">
+  <!-- Left = Selected / In Use -->
+  <select id="safetyFlagsSelected" multiple size="6"></select>
+  <div class="dual-list-buttons" style="display:flex;flex-direction:column;gap:5px;">
+    <button id="toSafetyAvailable">→</button>
+    <button id="toSafetySelected">←</button>
+  </div>
+  <!-- Right = Available -->
+  <select id="safetyFlagsAvailable" multiple size="6"></select>
+</div>
+<input type="hidden" id="qpSafetyFlags" />
 
 <button class="generate" id="generateQP">Generate QP</button>
 <button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
@@ -281,7 +288,7 @@ toggleInstr("toggleInstructionsQP","instructionsQP");
 document.getElementById("plate").addEventListener("input",function(){this.value=this.value.toUpperCase();});
 
 // QVR generator
-document.getElementById("generateQVR").addEventListener("click",()=>{
+document.getElementById("generateQVR").addEventListener("click",()=>{ 
   const plate=document.getElementById("plate").value||"Nil";
   const owner=document.getElementById("owner").value||"Nil";
   const woF=document.getElementById("woF").value||"Nil";
@@ -295,164 +302,142 @@ document.getElementById("generateQVR").addEventListener("click",()=>{
 });
 
 // Male/last names
-const maleFirstNames = [
-  // Original
-  "Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander",
-  "Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo",
-  "Jack","Owen","Theodore","Aiden","Samuel",
-
-  // Māori / NZ additions (male + neutral)
-  "Wiremu","Tama","Manaia","Hemi","Rangi","Nikau","Tane","Rawiri","Hoani","Kauri",
-  "Ari","Anaru","Pita","Kahu","Matiu","Niko","Tai","Rewi","Hori","Rau","Wire",
-  "Tawhiri","Ihaia","Tipene","Taimana","Mako","Aroha","Tui","Whetu","Kahu","TeManu",
-  "Rongo","Tamaora","TeAriki","Koroki","Mikaere","Arona","Kereama","TeRangi","Hone","Pene",
-  "Tawera","Eru","Tuterangi","Tioriori","Kawhena","Hera","Kahurangi","Whiti","Turanga",
-  "Takuta","Pounamu","Rere","Maru","Rata","Ngaio","Makoha","Tamaroa","Tohu","Wirekura",
-
-  // Common NZ European names (extra)
-  "Thomas","Charlie","George","Harrison","Finn","Cooper","Lachlan","Blake","Hunter",
-  "Isaac","Joshua","Callum","Connor","Jordan","Cameron","Tyler","Zachary","Dylan",
-  "Caleb","Elliot","Nathan","Ryan","Oscar","Archie","Patrick","Jasper","Miles","Spencer",
-  "Logan","Cole","Max","Austin","Dominic","Brayden","Shane","Corey","Mitchell","Aaron",
-  "Travis","Ewan","Flynn","Reid","Declan","Ashton","Hayden","Kane","Brandon","Marcus",
-  "Jayden","Troy","Scott","Riley","Samson","Leo","Eli","Christian","Damian","Xavier"
-];
-
-const lastNames = [
-  // Original
-  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
-  "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
-  "Lee","Perez","Thompson","White","Harris",
-
-  // Common NZ European surnames
-  "Andrews","Clark","King","Scott","Edwards","Walker","Murray","McKenzie","McDonald","Graham",
-  "Stewart","Campbell","Fraser","Reid","Alexander","Ross","Douglas","Marshall","Kerr","McLean",
-  "Fletcher","Boyd","Munro","Sinclair","Wallace","Forbes","Henderson","Allan","MacDonald","Cameron",
-
-  // Māori surnames
-  "Ngata","Rangihau","TeRangi","Waititi","Tamihana","Wikaira","Henare","Tipene","Waaka","TeHeuheu",
-  "Katene","Tau","Wharekawa","Ngawhika","Ranginui","Reihana","Parata","Turei","TeAho","Kawana",
-  "Perenara","Ropiha","Haami","Whaitiri","TeKanawa","Whiu","TePaea","Moana","Ngawaka","Whanau",
-  "Wanoa","Hikuroa","Hotere","TeWhiti","Tirikatene","Taiaroa","TePuni","Hekenui","Pomare","Apirana",
-  "Aranui","Wharekura","Paora","TeAo","Ngawhare","Tipiwai","Pikiao","Hona","Waiariki","Ngakuru"
-];
+const maleFirstNames = ["Liam","Noah","Oliver","Elijah","James","William","Benjamin","Lucas","Henry","Alexander","Mason","Michael","Ethan","Daniel","Jacob","Logan","Jackson","Levi","Sebastian","Mateo","Jack","Owen","Theodore","Aiden","Samuel","Wiremu","Tama","Manaia","Hemi","Rangi","Nikau","Tane","Rawiri","Hoani","Kauri","Ari","Anaru","Pita","Kahu","Matiu","Niko","Tai","Rewi","Hori","Rau","Wire","Tawhiri","Ihaia","Tipene","Taimana","Mako","Aroha","Tui","Whetu","Kahu","TeManu","Rongo","Tamaora","TeAriki","Koroki","Mikaere","Arona","Kereama","TeRangi","Hone","Pene","Tawera","Eru","Tuterangi","Tioriori","Kawhena","Hera","Kahurangi","Whiti","Turanga","Takuta","Pounamu","Rere","Maru","Rata","Ngaio","Makoha","Tamaroa","Tohu","Wirekura","Thomas","Charlie","George","Harrison","Finn","Cooper","Lachlan","Blake","Hunter","Isaac","Joshua","Callum","Connor","Jordan","Cameron","Tyler","Zachary","Dylan","Caleb","Elliot","Nathan","Ryan","Oscar","Archie","Patrick","Jasper","Miles","Spencer","Logan","Cole","Max","Austin","Dominic","Brayden","Shane","Corey","Mitchell","Aaron","Travis","Ewan","Flynn","Reid","Declan","Ashton","Hayden","Kane","Brandon","Marcus","Jayden","Troy","Scott","Riley","Samson","Leo","Eli","Christian","Damian","Xavier"];
+const lastNames = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez","Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee","Perez","Thompson","White","Harris","Andrews","Clark","King","Scott","Edwards","Walker","Murray","McKenzie","McDonald","Graham","Stewart","Campbell","Fraser","Reid","Alexander","Ross","Douglas","Marshall","Kerr","McLean","Fletcher","Boyd","Munro","Sinclair","Wallace","Forbes","Henderson","Allan","MacDonald","Cameron","Ngata","Rangihau","TeRangi","Waititi","Tamihana","Wikaira","Henare","Tipene","Waaka","TeHeuheu","Katene","Tau","Wharekawa","Ngawhika","Ranginui","Reihana","Parata","Turei","TeAho","Kawana","Perenara","Ropiha","Haami","Whaitiri","TeKanawa","Whiu","TePaea","Moana","Ngawaka","Whanau","Wanoa","Hikuroa","Hotere","TeWhiti","Tirikatene","Taiaroa","TePuni","Hekenui","Pomare","Apirana","Aranui","Wharekura","Paora","TeAo","Ngawhare","Tipiwai","Pikiao","Hona","Waiariki","Ngakuru"];
 
 // NZ Flags
-const nzFlags = [
-  "Warrant to Arrest: Failure to appear in court",
-  "Warrant to Arrest: Breach of bail conditions",
-  "Warrant to Arrest: Breach of domestic violence order",
-  "Warrant to Arrest: Theft",
-  "Warrant to Arrest: Assault",
-  "Warrant to Arrest: Outstanding fines",
-  "Warrant to Arrest: Burglary",
-  "Warrant to Arrest: Aggravated robbery",
-  "Warrant to Arrest: Shoplifting",
-  "Warrant to Arrest: Fraud",
-  "Warrant to Arrest: Unlawful possession of a firearm",
-  "Warrant to Arrest: Supplying illegal drugs",
-  "Warrant to Arrest: Breach of protection order",
-  "Warrant to Arrest: Wilful damage",
-  "Warrant to Arrest: Trespass",
-  "Warrant to Arrest: Threats to kill or injure",
-  "Warrant to Arrest: Hit and run",
-  "Warrant to Arrest: Breach of community work sentence",
-  "Warrant to Arrest: Breach of parole conditions"
+const nzFlags = ["Warrant to Arrest: Failure to appear in court","Warrant to Arrest: Breach of bail conditions","Warrant to Arrest: Breach of domestic violence order","Warrant to Arrest: Theft","Warrant to Arrest: Assault","Warrant to Arrest: Outstanding fines","Warrant to Arrest: Burglary","Warrant to Arrest: Aggravated robbery","Warrant to Arrest: Shoplifting","Warrant to Arrest: Fraud","Warrant to Arrest: Vehicle crime","Warrant to Arrest: Drug possession","Warrant to Arrest: Drug trafficking","Warrant to Arrest: Property damage","Warrant to Arrest: Disorderly conduct","Warrant to Arrest: Domestic dispute","Warrant to Arrest: Harassment","Warrant to Arrest: Sexual offence","Warrant to Arrest: Traffic offence"];
+
+// Other Safety Flags
+const safetyFlagsList = [
+  "Assaults Police",
+  "Uses/Carries Firearms",
+  "Uses/Carries Knives",
+  "Fleeing Driver",
+  "Drug User",
+  "Staff Safety Person of Interest",
+  "Gang Affiliations",
+  "Threatening Behaviour",
+  "History of Violence",
+  "Domestic Violence Risk",
+  "Known Burglary Offender",
+  "Armed Robbery History",
+  "Resists Arrest",
+  "Dangerous when Confronted",
+  "Repeat Offender",
+  "High-Risk Vehicle Operator",
+  "Stolen Vehicle Involvement",
+  "Evading Police",
+  "Suspicious Behaviour",
+  "Violent Towards Police",
+  "Firearms Training / Skill",
+  "Known associate of Bonqueque"
 ];
 
-// Dual-list logic
+// License buttons logic
+function activateButtons(containerId, hiddenInputId) {
+  const container = document.getElementById(containerId);
+  const hiddenInput = document.getElementById(hiddenInputId);
+  container.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click",()=>{btn.classList.toggle("active");
+      const selected=[...container.querySelectorAll("button.active")].map(b=>b.dataset.value);
+      hiddenInput.value=selected.join(",");
+    });
+  });
+}
+activateButtons("mainLicenseBtns","licenseValue");
+activateButtons("otherLicenseBtns","otherLicensesValue");
+
+// Dual-list logic for Flags
 let availableFlags = [...nzFlags];
 let selectedFlags = [];
-
 const flagsAvailableEl = document.getElementById("flagsAvailable");
 const flagsSelectedEl = document.getElementById("flagsSelected");
 const freeTextFlags = document.getElementById("freeTextFlags");
-
-function refreshLists() {
+function refreshFlagsLists(){
   flagsAvailableEl.innerHTML="";
   availableFlags.forEach(f=>{let opt=document.createElement("option");opt.value=f;opt.text=f;flagsAvailableEl.appendChild(opt);});
   flagsSelectedEl.innerHTML="";
   selectedFlags.forEach(f=>{let opt=document.createElement("option");opt.value=f;opt.text=f;flagsSelectedEl.appendChild(opt);});
   document.getElementById("qpFlags").value=selectedFlags.join(", ");
-  freeTextFlags.value = selectedFlags.join(", ");
+  freeTextFlags.value=selectedFlags.join(", ");
 }
-
-// Right arrow → = move from Available → Selected
 document.getElementById("toSelected").addEventListener("click",()=>{
   const moving=[...flagsAvailableEl.selectedOptions].map(o=>o.value);
-  moving.forEach(f=>{selectedFlags.push(f); availableFlags=availableFlags.filter(a=>a!==f);});
-  refreshLists();
+  moving.forEach(f=>{selectedFlags.push(f);availableFlags=availableFlags.filter(a=>a!==f);});
+  refreshFlagsLists();
 });
-
-// Left arrow ← = move from Selected → Available
 document.getElementById("toAvailable").addEventListener("click",()=>{
   const movingBack=[...flagsSelectedEl.selectedOptions].map(o=>o.value);
-  movingBack.forEach(f=>{availableFlags.push(f); selectedFlags=selectedFlags.filter(a=>a!==f);});
-  refreshLists();
+  movingBack.forEach(f=>{availableFlags.push(f);selectedFlags=selectedFlags.filter(a=>a!==f);});
+  refreshFlagsLists();
 });
+refreshFlagsLists();
 
-// Populate flags immediately
-refreshLists();
-
-// Main license logic
-const mainLicenseBtns = document.querySelectorAll("#mainLicenseBtns button");
-const otherLicenseBtns = document.querySelectorAll("#otherLicenseBtns button");
-
-mainLicenseBtns.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    mainLicenseBtns.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("licenseValue").value=btn.dataset.value;
-    otherLicenseBtns.forEach(b=>{
-      if(["2","3","4","5"].includes(b.dataset.value)){
-        b.disabled = !(btn.dataset.value==="1F");
-        b.style.opacity = b.disabled ? 0.5 : 1;
-      } else {b.disabled=false; b.style.opacity=1;}
-    });
-  });
+// Dual-list logic for Safety Flags
+let availableSafetyFlags = [...safetyFlagsList];
+let selectedSafetyFlags = [];
+const safetyAvailableEl = document.getElementById("safetyFlagsAvailable");
+const safetySelectedEl = document.getElementById("safetyFlagsSelected");
+const safetyFreeTextFlags = document.getElementById("safetyFreeTextFlags");
+function refreshSafetyLists() {
+  safetyAvailableEl.innerHTML = "";
+  availableSafetyFlags.forEach(f => {let opt=document.createElement("option");opt.value=f;opt.text=f;safetyAvailableEl.appendChild(opt);});
+  safetySelectedEl.innerHTML = "";
+  selectedSafetyFlags.forEach(f => {let opt=document.createElement("option");opt.value=f;opt.text=f;safetySelectedEl.appendChild(opt);});
+  document.getElementById("qpSafetyFlags").value = selectedSafetyFlags.join(", ");
+  safetyFreeTextFlags.value = selectedSafetyFlags.join(", ");
+}
+document.getElementById("toSafetySelected").addEventListener("click", ()=>{
+  const moving=[...safetyAvailableEl.selectedOptions].map(o=>o.value);
+  moving.forEach(f=>{selectedSafetyFlags.push(f);availableSafetyFlags=availableSafetyFlags.filter(a=>a!==f);});
+  refreshSafetyLists();
 });
-
-// Other license tooltips & selection
-otherLicenseBtns.forEach(btn=>{
-  let text="";
-  switch(btn.dataset.value){
-    case '2': text="Medium rigid vehicle"; break;
-    case '3': text="Medium combination vehicle"; break;
-    case '4': text="Heavy rigid vehicle"; break;
-    case '5': text="Heavy combination vehicle"; break;
-    case '6': text="Motorcycle"; break;
-  }
-  btn.classList.add("other-license-tooltip");
-  btn.setAttribute("data-tooltip",text);
-  btn.addEventListener("click",()=>{
-    if(!btn.disabled){
-      btn.classList.toggle("active");
-      const selected = [...otherLicenseBtns].filter(b=>b.classList.contains("active")).map(b=>b.dataset.value);
-      document.getElementById("otherLicensesValue").value = selected.join(", ");
-    }
-  });
+document.getElementById("toSafetyAvailable").addEventListener("click", ()=>{
+  const movingBack=[...safetySelectedEl.selectedOptions].map(o=>o.value);
+  movingBack.forEach(f=>{availableSafetyFlags.push(f);selectedSafetyFlags=selectedSafetyFlags.filter(a=>a!==f);});
+  refreshSafetyLists();
 });
+refreshSafetyLists();
 
-// Randomize QP names
+// Random QP Generator
 document.getElementById("randomQP").addEventListener("click",()=>{
   document.getElementById("firstName").value = maleFirstNames[Math.floor(Math.random()*maleFirstNames.length)];
   document.getElementById("lastName").value = lastNames[Math.floor(Math.random()*lastNames.length)];
 });
 
-// Generate QP
-document.getElementById("generateQP").addEventListener("click",()=>{
-  const first=document.getElementById("firstName").value||"Nil";
-  const last=document.getElementById("lastName").value||"Nil";
-  const dob=document.getElementById("age").value||"Nil";
-  const address=document.getElementById("address").value||"Nil";
-  const occ=document.getElementById("occupation").value||"Nil";
-  const mainLic=document.getElementById("licenseValue").value||"Nil";
-  const otherLic=document.getElementById("otherLicensesValue").value||"None";
-  const flags = freeTextFlags.value||"None";
+// Generate QP output
+document.getElementById("generateQP").addEventListener("click",()=> {
+  const f = document.getElementById("firstName").value || "Nil";
+  const l = document.getElementById("lastName").value || "Nil";
+  const dob = document.getElementById("age").value || "Nil";
+  const addr = document.getElementById("address").value || "Nil";
+  const occ = document.getElementById("occupation").value || "Nil";
+  const mainLic = document.getElementById("licenseValue").value || "None";
+  const otherLic = document.getElementById("otherLicensesValue").value || "None";
+  let flagsList = selectedFlags.length ? [...selectedFlags] : [];
+  
+  // Process warrants
+  const warrantFlags = flagsList.filter(f => f.startsWith("Warrant to Arrest:"));
+  const otherFlags = flagsList.filter(f => !f.startsWith("Warrant to Arrest:"));
+  let flagsOutput = "";
+  if(warrantFlags.length === 1){
+    flagsOutput = warrantFlags[0]; // single warrant
+  } else if(warrantFlags.length > 1){
+    const offences = warrantFlags.map(f => f.replace("Warrant to Arrest:", "").trim());
+    flagsOutput = "Warrants for Arrest: " + offences.join(", ");
+  }
+  // append other flags
+  if(otherFlags.length) {
+    flagsOutput += (flagsOutput ? ", " : "") + otherFlags.join(", ");
+  }
+  if(!flagsOutput) flagsOutput = "None";
 
-  document.getElementById("outputQP").innerText=
-`~y~Name:~b~ ${first} ${last} ~y~DOB:~b~ ${dob} ~y~Address:~b~ ${address} ~y~Occupation:~b~ ${occ} ~y~License(s):~b~ ${mainLic}${otherLic!=="None"?", "+otherLic:""} ~y~Flags:~b~ ${flags}`;
+  const safetyFlags = document.getElementById("qpSafetyFlags").value || "None";
+
+  document.getElementById("outputQP").innerText = `~y~Name:~b~${f} ${l} ~y~DOB:~b~${dob} ~y~Address:~b~${addr} ~y~Occupation:~b~${occ} ~y~License(s):~b~${mainLic} ~y~Other License(s):~b~${otherLic} ~y~Flags:~b~${flagsOutput} ~y~Staff Safety Flags:~b~${safetyFlags}`;
 });
+
 </script>
 </body>
 </html>
