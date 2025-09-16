@@ -297,6 +297,7 @@ const nzFlags = [
   "Warrant to Arrest: Burglary",
   "Warrant to Arrest: Aggravated robbery",
   "Warrant to Arrest: Shoplifting",
+  "Warrant to Arrest: Fraud",
   "Warrant to Arrest: Unlawful possession of a firearm",
   "Warrant to Arrest: Supplying illegal drugs",
   "Warrant to Arrest: Breach of protection order",
@@ -313,6 +314,7 @@ const safetyFlagsList = [
   "Assaults Police",
   "Uses/Carries Firearms",
   "Uses/Carries Knives",
+  "Fleeing Driver",
   "Drug User",
   "Staff Safety Person of Interest",
   "Gang Affiliations",
@@ -323,6 +325,8 @@ const safetyFlagsList = [
   "Armed Robbery History",
   "Resists Arrest",
   "Dangerous when Confronted",
+  "Repeat Offender",
+  "Stolen Vehicle Involvement",
   "Violent Towards Police",
   "Known associate of Bonqueque"
 ];
@@ -411,18 +415,43 @@ document.getElementById('generateQP').addEventListener('click', ()=>{
   const licensesText = licenses.length?licenses.join(', '):'Nil';
 
   // Flags
-  let flagsText=Array.from(document.getElementById('selectedFlags').options).map(o=>o.value).join(', ');
+  let selectedFlags = Array.from(document.getElementById('selectedFlags').options).map(o=>o.value);
   const freeFlags=document.getElementById('freeFlags').value.trim();
-  if(freeFlags) flagsText+=(flagsText?', ':'')+freeFlags;
-  flagsText = (flagsText && flagsText.toLowerCase()!=='nil' && flagsText.toLowerCase()!=='none') 
-              ? '~r~'+flagsText : '~b~'+(flagsText || 'Nil');
+  if(freeFlags) selectedFlags.push(freeFlags);
+
+  let flagsText = "Nil";
+  if(selectedFlags.length){
+    // Separate warrants from other flags
+    const warrants = selectedFlags.filter(f => f.startsWith("Warrant to Arrest:"));
+    const others = selectedFlags.filter(f => !f.startsWith("Warrant to Arrest:"));
+
+    let parts = [];
+    if(warrants.length === 1){
+      parts.push(warrants[0]); // keep as-is
+    } else if(warrants.length > 1){
+      // pluralise + strip duplicate prefix
+      let stripped = warrants.map(f => f.replace("Warrant to Arrest: ",""));
+      parts.push("Warrants to Arrest: " + stripped.join(", "));
+    }
+    if(others.length){
+      parts.push(others.join(", "));
+    }
+
+    flagsText = parts.join(", ");
+    flagsText = "~r~" + flagsText;
+  } else {
+    flagsText = "~b~Nil";
+  }
 
   // Staff Safety Flags
-  let staffFlagsText=Array.from(document.getElementById('selectedStaffFlags').options).map(o=>o.value).join(', ');
+  let selectedStaffFlags = Array.from(document.getElementById('selectedStaffFlags').options).map(o=>o.value);
   const freeStaffFlags=document.getElementById('freeStaffFlags').value.trim();
-  if(freeStaffFlags) staffFlagsText+=(staffFlagsText?', ':'')+freeStaffFlags;
-  staffFlagsText = (staffFlagsText && staffFlagsText.toLowerCase()!=='nil' && staffFlagsText.toLowerCase()!=='none') 
-                   ? '~r~'+staffFlagsText : '~b~'+(staffFlagsText || 'Nil');
+  if(freeStaffFlags) selectedStaffFlags.push(freeStaffFlags);
+
+  let staffFlagsText="~b~Nil";
+  if(selectedStaffFlags.length){
+    staffFlagsText="~r~"+selectedStaffFlags.join(", ");
+  }
 
   const output=
     `~y~Name:~b~${first} ${last} `+
@@ -435,6 +464,7 @@ document.getElementById('generateQP').addEventListener('click', ()=>{
 
   document.getElementById('outputQP').textContent=output;
 });
+
 
 // --- Generate QVR Output ---
 document.getElementById('generateQVR').addEventListener('click', ()=>{
@@ -477,4 +507,3 @@ document.querySelectorAll('#mainLicenseBtns button, #otherLicenseBtns button').f
 </div>
 </body>
 </html>
-
