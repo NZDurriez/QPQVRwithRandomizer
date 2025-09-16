@@ -25,7 +25,7 @@ button.generate:hover { background:#0056b3; }
 .instructions { margin:0; padding-left:20px; }
 .instructions li { margin-bottom:5px; }
 .output-container { margin-top:10px; }
-.output { padding:10px; background:#444; border-radius:5px; font-family:monospace; word-break:break-all; cursor:pointer; min-height:50px; user-select: all; }
+.output { padding:10px; background:#333; border: 1px solid #f4d03f; border-radius:5px; font-family:monospace; word-break:break-all; cursor:pointer; min-height:50px; user-select: all; }
 
 /* Dual-list grid */
 .dual-list-container {
@@ -107,6 +107,14 @@ button.generate:hover { background:#0056b3; }
   padding:0;
 }
 .dice-btn:hover { color:#FFD700; }
+
+.license-buttons button.disabled {
+  background: #555 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
 </style>
 </head>
 <body>
@@ -157,18 +165,18 @@ button.generate:hover { background:#0056b3; }
     <label>Flags:</label>
     <input type="text" id="flags" placeholder="Eg. Owner has active WTA" />
   </div>
-  <button class="toggle-instructions" id="toggleInstructionsQVR">Show Instructions</button>
-  <div class="instructions-container" id="instructionsQVR">
-    <ol class="instructions">
-      <li>Hit T in chat,</li>
-      <li>Type /civ,</li>
-      <li>Paste the generated QVR into the vehicle menu,</li>
-      <li>Save and activate.</li>
-    </ol>
-  </div>
   <button class="generate" id="generateQVR">Generate QVR</button>
   <div class="output-container">
     <p id="outputQVR" class="output"></p>
+  </div>
+  <button class="toggle-instructions" id="toggleInstructionsQVR">Show Instructions</button>
+  <div class="instructions-container" id="instructionsQVR">
+    <ol class="instructions">
+      <li>Hit T to type in chat,</li>
+      <li>Type /CIV to bring up the Civilian Menu</li>
+      <li>Paste the generated QVR into the vehicle menu,</li>
+      <li>Save and activate.</li>
+    </ol>
   </div>
 </div>
 
@@ -265,19 +273,18 @@ button.generate:hover { background:#0056b3; }
   </div>
 </div>
 
-<button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
-<div class="instructions-container" id="instructionsQP">
-  <ol class="instructions">
-    <li>Hit T in chat,</li>
-    <li>Type /civ,</li>
-    <li>Paste the generated QP into the character menu,</li>
-    <li>Save and activate.</li>
-  </ol>
-</div>
-
 <button class="generate" id="generateQP">Generate QP</button>
 <div class="output-container">
   <p id="outputQP" class="output"></p>
+</div>
+<button class="toggle-instructions" id="toggleInstructionsQP">Show Instructions</button>
+<div class="instructions-container" id="instructionsQP">
+  <ol class="instructions">
+    <li>Hit T to type in chat,</li>
+    <li>Type /CIV to bring up the Civilian Menu</li>
+    <li>Paste the generated QP into the character menu,</li>
+    <li>Save and activate. <br><small><i>note: you'll need to activate a character each time you login as these are not persistent across logins</i></small></li>
+  </ol>
 </div>
 </div>
 
@@ -492,12 +499,42 @@ document.getElementById('generateQVR').addEventListener('click', ()=>{
 });
 
 
-// License buttons toggle
-document.querySelectorAll('#mainLicenseBtns button, #otherLicenseBtns button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
+// License buttons toggle with dependency rules
+function updateOtherLicensesState() {
+  const has1F = document.querySelector('#mainLicenseBtns button[data-value="1F"]').classList.contains('active');
+  document.querySelectorAll('#otherLicenseBtns button').forEach(btn => {
+    const val = btn.dataset.value;
+    if (["2","3","4","5"].includes(val)) {
+      if (!has1F) {
+        btn.classList.add('disabled');
+        btn.classList.remove('active');
+      } else {
+        btn.classList.remove('disabled');
+      }
+    }
+    // "6" is always allowed
+  });
+}
+
+document.querySelectorAll('#mainLicenseBtns button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // make main license mutually exclusive
+    document.querySelectorAll('#mainLicenseBtns button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateOtherLicensesState();
+  });
+});
+
+document.querySelectorAll('#otherLicenseBtns button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('disabled')) return; // ignore clicks if disabled
     btn.classList.toggle('active');
   });
 });
+
+// run once at start
+updateOtherLicensesState();
+
 
 </script>
 </div>
